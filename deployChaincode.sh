@@ -20,14 +20,14 @@ setGlobalsForPeer0Org1() {
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
     # export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:7051
+    export CORE_PEER_ADDRESS=0.0.0.0:7051
 }
 
 setGlobalsForPeer1Org1() {
     export CORE_PEER_LOCALMSPID="Org1MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG1_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:8051
+    export CORE_PEER_ADDRESS=0.0.0.0:8051
 
 }
 
@@ -35,7 +35,7 @@ setGlobalsForPeer0Org2() {
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:9051
+    export CORE_PEER_ADDRESS=0.0.0.0:9051
 
 }
 
@@ -43,7 +43,7 @@ setGlobalsForPeer1Org2() {
     export CORE_PEER_LOCALMSPID="Org2MSP"
     export CORE_PEER_TLS_ROOTCERT_FILE=$PEER0_ORG2_CA
     export CORE_PEER_MSPCONFIGPATH=${PWD}/artifacts/channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp
-    export CORE_PEER_ADDRESS=localhost:10051
+    export CORE_PEER_ADDRESS=0.0.0.0:10051
 
 }
 
@@ -110,7 +110,7 @@ queryInstalled() {
 approveForMyOrg1() {
     setGlobalsForPeer0Org1
     # set -x
-    peer lifecycle chaincode approveformyorg -o localhost:7050 \
+    peer lifecycle chaincode approveformyorg -o 0.0.0.0:7050 \
         --ordererTLSHostnameOverride orderer.example.com --tls \
         --collections-config $PRIVATE_DATA_CONFIG \
         --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} --version ${VERSION} \
@@ -124,11 +124,11 @@ approveForMyOrg1() {
 
 getBlock() {
     setGlobalsForPeer0Org1
-    # peer channel fetch 10 -c mychannel -o localhost:7050 \
+    # peer channel fetch 10 -c mychannel -o 0.0.0.0:7050 \
     #     --ordererTLSHostnameOverride orderer.example.com --tls \
     #     --cafile $ORDERER_CA
 
-    peer channel getinfo  -c mychannel -o localhost:7050 \
+    peer channel getinfo  -c mychannel -o 0.0.0.0:7050 \
         --ordererTLSHostnameOverride orderer.example.com --tls \
         --cafile $ORDERER_CA
 }
@@ -138,7 +138,7 @@ getBlock() {
 # approveForMyOrg1
 
 # --signature-policy "OR ('Org1MSP.member')"
-# --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA
+# --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA
 # --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles $PEER0_ORG1_CA --peerAddresses peer0.org2.example.com:9051 --tlsRootCertFiles $PEER0_ORG2_CA
 #--channel-config-policy Channel/Application/Admins
 # --signature-policy "OR ('Org1MSP.peer','Org2MSP.peer')"
@@ -159,7 +159,7 @@ checkCommitReadyness() {
 approveForMyOrg2() {
     setGlobalsForPeer0Org2
 
-    peer lifecycle chaincode approveformyorg -o localhost:7050 \
+    peer lifecycle chaincode approveformyorg -o 0.0.0.0:7050 \
         --ordererTLSHostnameOverride orderer.example.com --tls $CORE_PEER_TLS_ENABLED \
         --cafile $ORDERER_CA --channelID $CHANNEL_NAME --name ${CC_NAME} \
         --collections-config $PRIVATE_DATA_CONFIG \
@@ -175,7 +175,7 @@ checkCommitReadyness() {
 
     setGlobalsForPeer0Org1
     peer lifecycle chaincode checkcommitreadiness --channelID $CHANNEL_NAME \
-        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
         --collections-config $PRIVATE_DATA_CONFIG \
         --name ${CC_NAME} --version ${VERSION} --sequence ${VERSION} --output json --init-required
     echo "===================== checking commit readyness from org 1 ===================== "
@@ -185,12 +185,12 @@ checkCommitReadyness() {
 
 commitChaincodeDefination() {
     setGlobalsForPeer0Org1
-    peer lifecycle chaincode commit -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
+    peer lifecycle chaincode commit -o 0.0.0.0:7050 --ordererTLSHostnameOverride orderer.example.com \
         --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
         --channelID $CHANNEL_NAME --name ${CC_NAME} \
         --collections-config $PRIVATE_DATA_CONFIG \
-        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
-        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         --version ${VERSION} --sequence ${VERSION} --init-required
 
 }
@@ -207,12 +207,12 @@ queryCommitted() {
 
 chaincodeInvokeInit() {
     setGlobalsForPeer0Org1
-    peer chaincode invoke -o localhost:7050 \
+    peer chaincode invoke -o 0.0.0.0:7050 \
         --ordererTLSHostnameOverride orderer.example.com \
         --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA \
         -C $CHANNEL_NAME -n ${CC_NAME} \
-        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
-        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         --isInit -c '{"Args":[]}'
 
 }
@@ -221,44 +221,44 @@ chaincodeInvokeInit() {
 
 chaincodeInvoke() {
     # setGlobalsForPeer0Org1
-    # peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com \
+    # peer chaincode invoke -o 0.0.0.0:7050 --ordererTLSHostnameOverride orderer.example.com \
     # --tls $CORE_PEER_TLS_ENABLED --cafile $ORDERER_CA -C $CHANNEL_NAME -n ${CC_NAME} \
-    # --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
-    # --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA  \
+    # --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+    # --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA  \
     # -c '{"function":"initLedger","Args":[]}'
 
     setGlobalsForPeer0Org1
 
     ## Create Car
-    # peer chaincode invoke -o localhost:7050 \
+    # peer chaincode invoke -o 0.0.0.0:7050 \
     #     --ordererTLSHostnameOverride orderer.example.com \
     #     --tls $CORE_PEER_TLS_ENABLED \
     #     --cafile $ORDERER_CA \
     #     -C $CHANNEL_NAME -n ${CC_NAME}  \
-    #     --peerAddresses localhost:7051 \
+    #     --peerAddresses 0.0.0.0:7051 \
     #     --tlsRootCertFiles $PEER0_ORG1_CA \
-    #     --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA   \
+    #     --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA   \
     #     -c '{"function": "createCar","Args":["Car-ABCDEEE", "Audi", "R8", "Red", "Pavan"]}'
 
     ## Init ledger
-    peer chaincode invoke -o localhost:7050 \
+    peer chaincode invoke -o 0.0.0.0:7050 \
         --ordererTLSHostnameOverride orderer.example.com \
         --tls $CORE_PEER_TLS_ENABLED \
         --cafile $ORDERER_CA \
         -C $CHANNEL_NAME -n ${CC_NAME} \
-        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
-        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         -c '{"function": "initLedger","Args":[]}'
 
     ## Add private data
     export CAR=$(echo -n "{\"key\":\"1111\", \"make\":\"Tesla\",\"model\":\"Tesla A1\",\"color\":\"White\",\"owner\":\"pavan\",\"price\":\"10000\"}" | base64 | tr -d \\n)
-    peer chaincode invoke -o localhost:7050 \
+    peer chaincode invoke -o 0.0.0.0:7050 \
         --ordererTLSHostnameOverride orderer.example.com \
         --tls $CORE_PEER_TLS_ENABLED \
         --cafile $ORDERER_CA \
         -C $CHANNEL_NAME -n ${CC_NAME} \
-        --peerAddresses localhost:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
-        --peerAddresses localhost:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
+        --peerAddresses 0.0.0.0:7051 --tlsRootCertFiles $PEER0_ORG1_CA \
+        --peerAddresses 0.0.0.0:9051 --tlsRootCertFiles $PEER0_ORG2_CA \
         -c '{"function": "createPrivateCar", "Args":[]}' \
         --transient "{\"car\":\"$CAR\"}"
 }
