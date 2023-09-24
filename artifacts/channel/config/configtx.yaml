@@ -103,7 +103,7 @@ Organizations:
                 Rule: "OR('Org2MSP.peer', 'Org2MSP.admin')"
         AnchorPeers:
           - Host: localhost
-            Port: 9051
+            Port: 7053
 ################################################################################
 #
 #   SECTION: Capabilities
