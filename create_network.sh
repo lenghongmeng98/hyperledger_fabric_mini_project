@@ -1,1 +1,1 @@
-docker create network test
+sudo docker network create test

@@ -57,6 +57,6 @@ updateAnchorPeers(){
     
 }
 
-# createChannel
-joinChannel
+createChannel
+# joinChannel
 # updateAnchorPeers
