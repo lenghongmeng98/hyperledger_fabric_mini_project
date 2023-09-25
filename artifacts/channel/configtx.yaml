@@ -1,3 +1,9 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+---
 ################################################################################
 #
 #   Section: Organizations
@@ -19,7 +25,7 @@ Organizations:
         ID: OrdererMSP
 
         # MSPDir is the filesystem path which contains the MSP configuration
-        MSPDir: crypto-config/ordererOrganizations/example.com/msp
+        MSPDir: ./crypto-config/ordererOrganizations/example.com/msp
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -35,6 +41,9 @@ Organizations:
                 Type: Signature
                 Rule: "OR('OrdererMSP.admin')"
 
+        OrdererEndpoints:
+            - 127.0.0.1:7050
+
     - &Org1
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
@@ -43,7 +52,8 @@ Organizations:
         # ID to load the MSP definition as
         ID: Org1MSP
 
-        MSPDir: crypto-config/peerOrganizations/org1.example.com/msp
+
+        MSPDir: ./crypto-config/peerOrganizations/org1.example.com/msp
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -54,22 +64,18 @@ Organizations:
                 Rule: "OR('Org1MSP.admin', 'Org1MSP.peer', 'Org1MSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('Org1MSP.admin', 'Org1MSP.client')"
+                Rule: "OR('Org1MSP.admin', 'Org1MSP.client', 'Org2MSP.peer')"
             Admins:
                 Type: Signature
                 Rule: "OR('Org1MSP.admin')"
+
+            # install chaincode, interact with chaincode
             Endorsement:
                 Type: Signature
-                Rule: "OR('Org1MSP.peer')"
-
-        # leave this flag set to true.
+                Rule: "OR('Org1MSP.peer', 'Org1MSP.admin')"
         AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.org1.example.com
-              Port: 7051
-
+          - Host: localhost
+            Port: 7051
     - &Org2
         # DefaultOrg defines the organization which is used in the sampleconfig
         # of the fabric.git development environment
@@ -78,7 +84,7 @@ Organizations:
         # ID to load the MSP definition as
         ID: Org2MSP
 
-        MSPDir: crypto-config/peerOrganizations/org2.example.com/msp
+        MSPDir: ./crypto-config/peerOrganizations/org2.example.com/msp
 
         # Policies defines the set of policies at this level of the config tree
         # For organization policies, their canonical path is usually
@@ -89,21 +95,16 @@ Organizations:
                 Rule: "OR('Org2MSP.admin', 'Org2MSP.peer', 'Org2MSP.client')"
             Writers:
                 Type: Signature
-                Rule: "OR('Org2MSP.admin', 'Org2MSP.client')"
+                Rule: "OR('Org2MSP.admin', 'Org2MSP.client', 'Org2MSP.peer')"
             Admins:
                 Type: Signature
                 Rule: "OR('Org2MSP.admin')"
             Endorsement:
                 Type: Signature
-                Rule: "OR('Org2MSP.peer')"
-
+                Rule: "OR('Org2MSP.peer', 'Org2MSP.admin')"
         AnchorPeers:
-            # AnchorPeers defines the location of peers which can be used
-            # for cross org gossip communication.  Note, this value is only
-            # encoded in the genesis block in the Application section context
-            - Host: peer0.org2.example.com
-              Port: 7053
-
+          - Host: localhost
+            Port: 7053
 ################################################################################
 #
 #   SECTION: Capabilities
@@ -135,6 +136,7 @@ Capabilities:
         # Prior to enabling V2.0 channel capabilities, ensure that all
         # orderers and peers on a channel are at v2.0.0 or later.
         V2_0: true
+        
 
     # Orderer capabilities apply only to the orderers, and may be safely
     # used with prior release peers.
@@ -152,13 +154,11 @@ Capabilities:
     # used with prior release orderers.
     # Set the value of the capability to true to require it.
     Application: &ApplicationCapabilities
-        # V2_0 application capability ensures that peers behave according
-        # to v2.0 application capabilities. Peers from
-        # prior releases would behave in an incompatible way, and are therefore
-        # not able to participate in channels at v2.0 application capability.
-        # Prior to enabling V2.0 application capabilities, ensure that all
-        # peers on channel are at v2.0.0 or later.
-        V2_0: true
+        # V2.5 for Application enables the new non-backwards compatible
+        # features of fabric v2.5, namely the ability to purge private data.
+        # Prior to enabling V2.5 application capabilities, ensure that all
+        # peers on a channel are at v2.5.0 or later.
+        V2_5: true
 
 ################################################################################
 #
@@ -207,17 +207,21 @@ Application: &ApplicationDefaults
 Orderer: &OrdererDefaults
 
     # Orderer Type: The orderer implementation to start
-    OrdererType: etcdraft
+    OrdererType: solo
+    # Addresses used to be the list of orderer addresses that clients and peers
+    # could connect to.  However, this does not allow clients to associate orderer
+    # addresses and orderer organizations which can be useful for things such
+    # as TLS validation.  The preferred way to specify orderer addresses is now
+    # to include the OrdererEndpoints item in your org definition
+    Addresses:
+        - orderer.example.com:7050
 
     EtcdRaft:
         Consenters:
         - Host: orderer.example.com
           Port: 7050
-          ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-          ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-
-    Addresses:
-        - orderer.example.com:7050
+          ClientTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
+          ServerTLSCert: ../organizations/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 
     # Batch Timeout: The amount of time to wait before creating a batch
     BatchTimeout: 2s
@@ -301,60 +305,23 @@ Channel: &ChannelDefaults
 #
 ################################################################################
 Profiles:
-
-    BasicChannel:
-        Consortium: SampleConsortium
+    TwoOrgsApplicationGenesis:
         <<: *ChannelDefaults
+        Orderer:
+            <<: *OrdererDefaults
+            Organizations:
+                - *OrdererOrg
+            Capabilities: *OrdererCapabilities
+        Consortium: TestNetworkConsortium
+        Consortiums:
+            TestNetworkConsortium:
+                Organizations:
+                    - <<: *Org1
+                    - <<: *Org2
         Application:
             <<: *ApplicationDefaults
             Organizations:
                 - *Org1
                 - *Org2
-            Capabilities:
-                <<: *ApplicationCapabilities
-
-    OrdererGenesis:
-        <<: *ChannelDefaults
-        Capabilities:
-            <<: *ChannelCapabilities
-        Orderer:
-            <<: *OrdererDefaults
-            OrdererType: etcdraft
-            EtcdRaft:
-                Consenters:
-                - Host: orderer.example.com
-                  Port: 7050
-                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
-                - Host: orderer2.example.com
-                  Port: 8050
-                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer2.example.com/tls/server.crt
-                - Host: orderer3.example.com
-                  Port: 9050
-                  ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
-                  ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer3.example.com/tls/server.crt
-                # - Host: orderer4.example.com
-                #   Port: 10050
-                #   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
-                #   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer4.example.com/tls/server.crt
-                # - Host: orderer5.example.com
-                #   Port: 11050
-                #   ClientTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/tls/server.crt
-                #   ServerTLSCert: crypto-config/ordererOrganizations/example.com/orderers/orderer5.example.com/tls/server.crt
-            Addresses:
-                - orderer.example.com:7050
-                - orderer2.example.com:8050
-                - orderer3.example.com:9050
-                # - orderer4.example.com:10050
-                # - orderer5.example.com:11050
-
-            Organizations:
-            - *OrdererOrg
-            Capabilities:
-                <<: *OrdererCapabilities
-        Consortiums:
-            SampleConsortium:
-                Organizations:
-                - *Org1
-                - *Org2
+            Capabilities: *ApplicationCapabilities
+        
