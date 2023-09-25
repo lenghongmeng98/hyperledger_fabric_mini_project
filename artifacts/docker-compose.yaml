@@ -102,6 +102,11 @@ services:
       - /var/run/:/host/var/run/
       - ./channel/:/etc/hyperledger/channel/
       - ./ledgers/ledger1:/var/hyperledger/production
+
+      - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt:/etc/hyperledger/crypto/peer/tls/server.crt
+      - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key:/etc/hyperledger/crypto/peer/tls/server.key
+      - ./channel/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt:/etc/hyperledger/crypto/peer/tls/ca.crt
+      - ./channel/crypto-config/peerOrganizations/org1.example.com/users/Admin@org1.example.com/msp:/etc/hyperledger/crypto/peer/msp
     networks:
       - test
 
@@ -150,5 +155,9 @@ services:
       - ./channel/:/etc/hyperledger/channel/
       - ./ledgers/ledger2:/var/hyperledger/production
       
+      - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.crt:/etc/hyperledger/crypto/peer/tls/server.crt
+      - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.key:/etc/hyperledger/crypto/peer/tls/server.key
+      - ./channel/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt:/etc/hyperledger/crypto/peer/tls/ca.crt
+      - ./channel/crypto-config/peerOrganizations/org2.example.com/users/Admin@org2.example.com/msp:/etc/hyperledger/crypto/peer/msp
     networks:
       - test

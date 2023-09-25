@@ -4,6 +4,7 @@
 # sudo rm -R ./artifacts/channel/Org1MSPanchors.tx
 # sudo rm -R ./artifacts/channel/Org2MSPanchors.tx
 sudo rm -rf ./artifacts/ledgers/
+sudo rm -rf ./channel-artifacts/*
 docker rm -f $(docker ps -aq)
 docker volume prune
 

@@ -1,2 +1,8 @@
+
+sudo rm -rf ./artifacts/ledgers/
+sudo rm -rf ./channel-artifacts/*
+docker rm -f $(docker ps -aq)
+
+
 docker-compose -f ./artifacts/docker-compose.yaml down
-# sudo rm -rf ./artifacts/ledgers/
+docker volume prune
